@@ -7,10 +7,10 @@ import javax.swing.SwingUtilities
 
 class MainViewModel {
 
-    private val _workDir: MutableState<String> = mutableStateOf("")
+    private val _workDir: MutableState<String> = mutableStateOf(defaultWorkDir)
     val workDir: State<String> = _workDir
 
-    private val _htmlFileName: MutableState<String> = mutableStateOf("templates/test")
+    private val _htmlFileName: MutableState<String> = mutableStateOf(defaultFile)
     val htmlFileName: State<String> = _htmlFileName
 
     private val _status = mutableStateOf("")

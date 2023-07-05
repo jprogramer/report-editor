@@ -19,16 +19,14 @@ class WatchingSession(
         private val log = logger()
     }
 
-    val pdfGenerator = PdfGenerator(workDir)
-
     private val closed = AtomicBoolean()
 
     private val scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
     private var nextUpdate: ScheduledFuture<*>? = null
 
-
     private val workDirPath: Path = Paths.get(workDir)
-    private val inputFile = File(workDir, "$htmlFileName.html")
+    private val inputFile = File(workDir, htmlFileName)
+    val pdfGenerator = PdfGenerator(workDir, inputFile)
 
     private val watcher: ExecutorService = Executors.newSingleThreadExecutor().also {
         it.submit {
@@ -81,7 +79,7 @@ class WatchingSession(
 
     private val updater = Runnable {
         val output = File.createTempFile("$htmlFileName-preview", ".pdf")
-        pdfGenerator.generatePDF(inputFile, output)
+        pdfGenerator.generatePDF(output)
         SwingUtilities.invokeLater(onUpdate)
     }
 
