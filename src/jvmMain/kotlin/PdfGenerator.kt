@@ -1,3 +1,4 @@
+import com.google.common.collect.ImmutableList
 import com.itextpdf.styledxmlparser.resolver.resource.IResourceRetriever
 import dz.nexatech.reporter.client.common.withIO
 import dz.nexatech.reporter.client.core.PdfConverter
@@ -58,14 +59,9 @@ class PdfGenerator(val workDir: String, val inputFile: File) {
 
         val fontsData: Collection<ByteArray> by lazy {
             val result = LinkedList<ByteArray>()
-            loadFontDir("Amiri", result)
-            loadFontDir("Cairo", result)
-            loadFontDir("Lateef", result)
-            loadFontDir("MarkaziText", result)
-            loadFontDir("NotoNaskhArabic", result)
-            loadFontDir("ReadexPro", result)
-            loadFontDir("ScheherazadeNew", result)
-            loadFontDir("Vazirmatn", result)
+            for (fontDir in fontDirectories) {
+                loadFontDir(fontDir, result)
+            }
             result
         }
 

@@ -8,6 +8,17 @@ val defaultFile = "templates/example_01.html"
 
 val parsingLocale = Locale.FRANCE
 
+val fontDirectories = ImmutableList.Builder<String>()
+    .add("Amiri")
+    .add("Cairo")
+    .add("Lateef")
+    .add("MarkaziText")
+    .add("NotoNaskhArabic")
+    .add("ReadexPro")
+    .add("ScheherazadeNew")
+    .add("Vazirmatn")
+    .build()
+
 val environment: ImmutableMap<String, Any> = ImmutableMap.builder<String, Any>()
     .put("left_header", "Sevenit GmbH\nHauptstrabe 40\n77654 Offenburg")
     .put("right_header", "MonsieurJean Dupont\nAcheteur SA\nRue du Château\n34000 MONTPELLIER")
