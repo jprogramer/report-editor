@@ -4,7 +4,7 @@ import java.util.*
 
 val defaultWorkDir = "C:\\Users\\Joseph\\Desktop\\examples"
 
-val defaultFile = "templates/example_01.html"
+val defaultFile = "example_01.html"
 
 val parsingLocale = Locale.FRANCE
 
@@ -25,7 +25,7 @@ val environment: ImmutableMap<String, Any> = ImmutableMap.builder<String, Any>()
     .put("bill_number", "1001")
     .put("bill_date", "02 July 2023")
     .put("client_number", "321")
-    .put("main_font_name", "Amiri")
+    .put("main_font_name", "Noto Naskh Arabic")
     .put("page_color", "#f2f2f2")
     .put("page_width", "595")
     .put(

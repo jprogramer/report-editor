@@ -20,7 +20,7 @@ class PdfGenerator(val workDir: String, val inputFile: File) {
         resourceLoader = object : IResourceRetriever {
             override fun getInputStreamByUrl(url: URL?): InputStream? {
                 if (url != null) {
-                    val file = File(workDir, RESOURCES_PREFIX + url.path.substringAfterLast(RESOURCES_PREFIX))
+                    val file = File(workDir, url.path)
                     if (file.exists()) {
                         return BufferedInputStream(FileInputStream(file))
                     } else {
