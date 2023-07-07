@@ -1,4 +1,3 @@
-import com.google.common.collect.ImmutableList
 import com.itextpdf.styledxmlparser.resolver.resource.IResourceRetriever
 import dz.nexatech.reporter.client.common.withIO
 import dz.nexatech.reporter.client.core.PdfConverter
@@ -18,14 +17,23 @@ class PdfGenerator(val workDir: String, val inputFile: File) {
 
     private val pdfConverter = PdfConverter(
         resourceLoader = object : IResourceRetriever {
+
+            private val loader = this.javaClass.classLoader
+
             override fun getInputStreamByUrl(url: URL?): InputStream? {
                 if (url != null) {
-                    val file = File(workDir, url.path)
+                    val resPath = url.path
+                    val file = File(workDir, resPath)
                     if (file.exists()) {
                         return BufferedInputStream(FileInputStream(file))
-                    } else {
-                        log.warn("resource not found: ${file.absolutePath}")
                     }
+
+                    val resourceInputSteam = loader.getResourceAsStream(resPath.removePrefix("/"))
+                    if (resourceInputSteam != null) {
+                        return BufferedInputStream(resourceInputSteam)
+                    }
+
+                    log.warn("resource not found: ${file.absolutePath}")
                 }
                 return null
             }
