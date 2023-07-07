@@ -63,4 +63,7 @@ dependencies {
     add("implementation", "com.itextpdf:html2pdf:4.0.5")
 
     add("implementation", "ch.qos.logback:logback-classic:1.4.7")
+
+    add("testImplementation", "junit:junit:4.13.2")
+    add("testImplementation", "com.google.truth:truth:1.1.3")
 }

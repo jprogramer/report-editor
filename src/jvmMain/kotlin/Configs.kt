@@ -1,6 +1,9 @@
+import androidx.compose.ui.unit.dp
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import java.util.*
+
+val defaultPadding = 4.dp
 
 val defaultWorkDir = "C:\\Users\\Joseph\\Desktop\\examples"
 
