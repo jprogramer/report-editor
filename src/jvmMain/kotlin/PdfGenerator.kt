@@ -1,10 +1,13 @@
+import com.google.common.collect.ImmutableCollection
+import com.google.common.collect.ImmutableList
+import com.google.common.io.Files
 import com.itextpdf.styledxmlparser.resolver.resource.IResourceRetriever
 import dz.nexatech.reporter.client.common.withIO
 import dz.nexatech.reporter.client.core.PdfConverter
 import kotlinx.coroutines.runBlocking
 import java.io.*
 import java.net.URL
-import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 class PdfGenerator(val workDir: String, val inputFile: File) {
 
@@ -42,7 +45,7 @@ class PdfGenerator(val workDir: String, val inputFile: File) {
             override fun getByteArrayByUrl(url: URL?): ByteArray? =
                 getInputStreamByUrl(url)?.readAllBytes()
         },
-        fontsLoader = { fontsData }
+        fontsLoader = { loadFont(workDir, mainFontName) }
     )
 
     fun generatePDF(output: File) {
@@ -63,40 +66,66 @@ class PdfGenerator(val workDir: String, val inputFile: File) {
 
         private val log = logger()
 
-        private const val RESOURCES_PREFIX = "/web/"
+        private val loader = PdfGenerator::class.java.classLoader
 
-        val fontsData: Collection<ByteArray> by lazy {
-            val result = LinkedList<ByteArray>()
-            for (fontDir in fontDirectories) {
-                loadFontDir(fontDir, result)
+        private val fontsCache = ConcurrentHashMap<String, ImmutableCollection<ByteArray>>()
+
+        fun loadFont(workDir: String, fontName: String): ImmutableCollection<ByteArray> =
+            fontsCache.computeIfAbsent(fontName) {
+                val fontDirName = fontName.replace(" ", "")
+                val builder = ImmutableList.Builder<ByteArray>()
+                loadFont(workDir, "fonts/$fontDirName/Bold.ttf", builder)
+                loadFont(workDir, "fonts/$fontDirName/Regular.ttf", builder)
+                builder.build()
             }
-            result
-        }
 
-        private fun loadFontDir(name: String, result: MutableList<ByteArray>) {
-            val loader = PdfGenerator::class.java.classLoader
-            addFontFile(loader, name, "Bold.ttf", result)
-            addFontFile(loader, name, "Regular.ttf", result)
-        }
-
-        private fun addFontFile(
-            loader: ClassLoader,
-            dirName: String,
-            fileName: String,
-            result: MutableList<ByteArray>,
+        private fun loadFont(
+            workDir: String,
+            fontPath: String,
+            builder: ImmutableList.Builder<ByteArray>,
         ) {
-            val asset = "fonts/$dirName/$fileName"
+            val fontFileBytes = loadFontFileBytes(File(workDir, fontPath))
+            if (fontFileBytes != null) {
+                builder.add(fontFileBytes)
+            } else {
+                val fontAssetBytes = loadFontAssetBytes(fontPath)
+                if (fontAssetBytes != null) {
+                    builder.add(fontAssetBytes)
+                }
+            }
+        }
+
+        private fun loadFontFileBytes(fontFile: File): ByteArray? {
+            if (fontFile.exists()) {
+                try {
+                    return Files.toByteArray(fontFile)
+                } catch (e: Exception) {
+                    log.error("error while loading font file: ${fontFile.absolutePath}", e)
+                }
+            } else {
+                log.warn("font file not found: ${fontFile.absolutePath}")
+            }
+
+            return null
+        }
+
+        private fun loadFontAssetBytes(
+            fontPath: String,
+        ): ByteArray? {
             try {
-                val inputStream = loader.getResourceAsStream(asset)
+                val inputStream = loader.getResourceAsStream(fontPath)
                 if (inputStream != null) {
-                    result.add(inputStream.readAllBytes())
-                    log.debug("font asset loaded: $asset")
+                    val bytes = inputStream.readAllBytes()
+                    log.debug("font asset loaded: $fontPath")
+                    return bytes;
                 } else {
-                    log.warn("font asset not found: $asset")
+                    log.warn("font asset not found: $fontPath")
                 }
             } catch (e: Exception) {
-                log.error("error while loading font asset: $asset", e)
+                log.error("error while loading font asset: $fontPath", e)
             }
+
+            return null
         }
     }
 }

@@ -11,16 +11,7 @@ val defaultFile = "example_01.html"
 
 val parsingLocale = Locale.FRANCE
 
-val fontDirectories = ImmutableList.Builder<String>()
-    .add("Amiri")
-    .add("Cairo")
-    .add("Lateef")
-    .add("MarkaziText")
-    .add("NotoNaskhArabic")
-    .add("ReadexPro")
-    .add("ScheherazadeNew")
-    .add("Vazirmatn")
-    .build()
+val mainFontName = "Noto Naskh Arabic"
 
 val environment: ImmutableMap<String, Any> = ImmutableMap.builder<String, Any>()
     .put("left_header", "Sevenit GmbH\nHauptstrabe 40\n77654 Offenburg")
@@ -28,7 +19,7 @@ val environment: ImmutableMap<String, Any> = ImmutableMap.builder<String, Any>()
     .put("bill_number", "1001")
     .put("bill_date", "02 July 2023")
     .put("client_number", "321")
-    .put("main_font_name", "Noto Naskh Arabic")
+    .put("main_font_name", mainFontName)
     .put("page_color", "#f2f2f2")
     .put("page_width", "595")
     .put(
