@@ -1,34 +1,83 @@
+import Configs.Companion.Settings.Companion.DEFAULT_MAIN_FONT_NAME
+import Configs.Companion.Settings.Companion.DEFAULT_PADDING_UNIT
+import Configs.Companion.Settings.Companion.DEFAULT_TEMPLATE_FILE
+import Configs.Companion.Settings.Companion.DEFAULT_TEMPLATE_LANG
+import Configs.Companion.Settings.Companion.DEFAULT_WORK_DIR
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.common.collect.ImmutableCollection
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableMap
 import com.google.common.io.Files
+import dz.nexatech.reporter.client.common.AbstractLocalizer.Companion.ARABIC_LOCALE
+import dz.nexatech.reporter.client.common.AbstractLocalizer.Companion.ENGLISH_LOCALE
+import dz.nexatech.reporter.client.common.AbstractLocalizer.Companion.FRENCH_LOCALE
+import dz.nexatech.reporter.client.common.Texts
+import java.io.BufferedInputStream
 import java.io.File
+import java.io.FileInputStream
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 class Configs {
 
-    private val log = logger()
+    companion object {
+        private val log = logger()
 
-    private val loader = Configs::class.java.classLoader
+        private val loader = Configs::class.java.classLoader
+
+        private const val configsDir = "configs"
+
+        val settings by lazy {
+            val defaultSettings = Settings()
+
+            val configFile = File(configsDir, "settings.properties")
+            if (configFile.exists()) {
+                val configs = Properties()
+                BufferedInputStream(FileInputStream(configFile)).use {
+                    configs.load(it)
+                }
+
+                Settings(
+                    paddingUnitDp = configs.getProperty("padding_unit", DEFAULT_PADDING_UNIT),
+                    templateLang = configs.getProperty("template_lang", DEFAULT_TEMPLATE_LANG),
+                    initWorkDir = configs.getProperty("init_work_dir", DEFAULT_WORK_DIR),
+                    initTemplateFile = configs.getProperty("init_template_file", DEFAULT_TEMPLATE_FILE),
+                    mainFontName = configs.getProperty("main_font_name", DEFAULT_MAIN_FONT_NAME),
+                )
+            } else {
+                Settings()
+            }
+        }
+
+        class Settings(
+            paddingUnitDp: String = DEFAULT_PADDING_UNIT,
+            templateLang: String = DEFAULT_TEMPLATE_LANG,
+            val initWorkDir: String = DEFAULT_WORK_DIR,
+            val initTemplateFile: String = DEFAULT_TEMPLATE_FILE,
+            val mainFontName: String = DEFAULT_MAIN_FONT_NAME,
+        ) {
+            val paddingUnit: Dp = (paddingUnitDp.toIntOrNull() ?: DEFAULT_PADDING_UNIT.toInt()).dp
+
+            val templateLocale: Locale = when (templateLang) {
+                Texts.LANG_EN -> ENGLISH_LOCALE
+                Texts.LANG_AR -> ARABIC_LOCALE
+                else -> FRENCH_LOCALE
+            }
+
+            companion object {
+                const val DEFAULT_PADDING_UNIT = "4"
+                const val DEFAULT_TEMPLATE_LANG = "fr"
+                val DEFAULT_WORK_DIR = System.getProperty("user.home")
+                const val DEFAULT_TEMPLATE_FILE = "test_template.html"
+                const val DEFAULT_MAIN_FONT_NAME = "Noto Naskh Arabic"
+            }
+        }
+    }
 
     private val fontsCache = ConcurrentHashMap<String, ImmutableCollection<ByteArray>>()
 
-    val settings by lazy {
-        Settings()
-    }
-
-    class Settings(
-        val defaultPadding: Dp = 4.dp,
-        val defaultWorkDir: String = "C:\\Users\\Joseph\\Desktop\\examples",
-        val defaultFile: String = "example_01.html",
-        val parsingLocale: Locale = Locale.FRANCE,
-        val mainFontName: String = "Noto Naskh Arabic",
-    )
-
-    val environment: ImmutableMap<String, Any> by lazy {
+    val environmentCache: ImmutableMap<String, Any> by lazy {
         ImmutableMap.builder<String, Any>()
             .put("left_header", "Sevenit GmbH\nHauptstrabe 40\n77654 Offenburg")
             .put("right_header", "MonsieurJean Dupont\nAcheteur SA\nRue du Château\n34000 MONTPELLIER")
@@ -68,6 +117,8 @@ class Configs {
             )
             .build()
     }
+
+    fun loadEnvironment() = environmentCache // TODO
 
     fun loadFont(workDir: String, fontName: String = settings.mainFontName): ImmutableCollection<ByteArray> =
         fontsCache.computeIfAbsent(fontName) {

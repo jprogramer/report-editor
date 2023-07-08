@@ -25,7 +25,7 @@ class TemplateParser(
     fun evaluateState(templateName: String): String = try {
         val pebbleTemplate = compileTemplateBlocking(templateName)
         val writer = StringWriter()
-        pebbleTemplate.evaluate(writer, configs.environment, configs.settings.parsingLocale)
+        pebbleTemplate.evaluate(writer, configs.loadEnvironment(), Configs.settings.templateLocale)
         writer.toString()
     } catch (e: Exception) {
         log.error("error while evaluating the template", e)

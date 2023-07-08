@@ -8,16 +8,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import com.google.common.io.Files
 import dz.nexatech.reporter.client.common.AbstractLocalizer
-import java.io.File
-import java.nio.charset.Charset
 import java.util.*
 
 fun main() {
     application {
         val viewModel = remember { MainViewModel() }
-        val defaultPadding = viewModel.configs.settings.defaultPadding
+        val defaultPadding = Configs.settings.paddingUnit
         Window(onCloseRequest = ::exitApplication) {
             MaterialTheme {
                 Column(
@@ -65,10 +62,6 @@ fun main() {
                     }
 
                     Divider(Modifier.padding(defaultPadding * 2))
-                    Button({ Files.newWriter(File("output.txt"), Charset.defaultCharset()).append("hello").close() }) {
-                        Text("new file")
-                    }
-                    Divider(Modifier.padding(defaultPadding * 2))
 
                     EpochMaker(defaultPadding)
                 }
@@ -76,8 +69,6 @@ fun main() {
         }
     }
 }
-
-val absolutePath = File("").absolutePath
 
 @Composable
 fun EpochMaker(defaultPadding: Dp) {

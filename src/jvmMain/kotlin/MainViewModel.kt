@@ -11,10 +11,10 @@ class MainViewModel {
 
     var configs = Configs()
 
-    private val _workDir: MutableState<String> = mutableStateOf(configs.settings.defaultWorkDir)
+    private val _workDir: MutableState<String> = mutableStateOf(Configs.settings.initWorkDir)
     val workDir: State<String> = _workDir
 
-    private val _htmlFileName: MutableState<String> = mutableStateOf(configs.settings.defaultFile)
+    private val _htmlFileName: MutableState<String> = mutableStateOf(Configs.settings.initTemplateFile)
     val htmlFileName: State<String> = _htmlFileName
 
     private val _status = mutableStateOf("")
