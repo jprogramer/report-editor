@@ -5,6 +5,9 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.res.loadImageBitmap
+import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -15,7 +18,11 @@ fun main() {
     application {
         val viewModel = remember { MainViewModel() }
         val defaultPadding = Configs.settings.paddingUnit
-        Window(onCloseRequest = ::exitApplication) {
+        Window(
+            onCloseRequest = ::exitApplication,
+            title = "Report Editor",
+            icon = BitmapPainter(useResource("desktop/app_bar_icon.ico", ::loadImageBitmap)),
+        ) {
             MaterialTheme {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,

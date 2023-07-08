@@ -6,7 +6,8 @@ plugins {
 }
 
 
-val buildVersion = "0.1.0"
+val buildVersion = "0.9.2"
+val buildID = buildVersion + '-' + System.currentTimeMillis()
 version = buildVersion
 group = "dz.nexatech.reporter"
 
@@ -38,8 +39,16 @@ compose.desktop {
         mainClass = "MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Msi)
-            packageName = "editor"
+            packageName = "Report Editor"
             packageVersion = buildVersion
+            vendor = "Nexatech"
+            windows {
+                console = false
+                dirChooser = true
+                shortcut = true
+                menu = true
+                iconFile.set(project.layout.projectDirectory.file("icons/ic_launcher.ico"))
+            }
         }
     }
 }
