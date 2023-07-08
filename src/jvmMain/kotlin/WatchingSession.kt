@@ -12,6 +12,7 @@ import kotlin.io.path.isDirectory
 class WatchingSession(
     workDir: String,
     htmlFileName: String,
+    configs: Configs,
     private val onError: (String) -> Unit = {},
     private val onUpdate: () -> Unit = {},
 ) {
@@ -26,7 +27,7 @@ class WatchingSession(
 
     private val workDirPath: Path = Paths.get(workDir)
     private val inputFile = File(workDir, htmlFileName)
-    val pdfGenerator = PdfGenerator(workDir, inputFile)
+    val pdfGenerator = PdfGenerator(configs, workDir, inputFile)
 
     private val watcher: ExecutorService = Executors.newSingleThreadExecutor().also {
         it.submit {

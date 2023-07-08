@@ -7,6 +7,7 @@ import java.util.function.Function
 import java.util.function.Predicate
 
 class TemplateParser(
+    val configs: Configs,
     val templateContentLoader: Function<String, InputStream?>,
     val templateExistenceChecker: Predicate<String>,
 ) {
@@ -24,7 +25,7 @@ class TemplateParser(
     fun evaluateState(templateName: String): String = try {
         val pebbleTemplate = compileTemplateBlocking(templateName)
         val writer = StringWriter()
-        pebbleTemplate.evaluate(writer, environment, parsingLocale)
+        pebbleTemplate.evaluate(writer, configs.environment, configs.settings.parsingLocale)
         writer.toString()
     } catch (e: Exception) {
         log.error("error while evaluating the template", e)

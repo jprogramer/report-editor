@@ -5,14 +5,19 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import com.google.common.io.Files
 import dz.nexatech.reporter.client.common.AbstractLocalizer
+import java.io.File
+import java.nio.charset.Charset
 import java.util.*
 
 fun main() {
     application {
         val viewModel = remember { MainViewModel() }
+        val defaultPadding = viewModel.configs.settings.defaultPadding
         Window(onCloseRequest = ::exitApplication) {
             MaterialTheme {
                 Column(
@@ -52,7 +57,7 @@ fun main() {
                         }
 
                         Button(
-                            onClick = { viewModel.refresh() },
+                            onClick = { viewModel.refreshAll() },
                             modifier = Modifier.padding(defaultPadding)
                         ) {
                             Text("Refresh")
@@ -60,16 +65,22 @@ fun main() {
                     }
 
                     Divider(Modifier.padding(defaultPadding * 2))
+                    Button({ Files.newWriter(File("output.txt"), Charset.defaultCharset()).append("hello").close() }) {
+                        Text("new file")
+                    }
+                    Divider(Modifier.padding(defaultPadding * 2))
 
-                    EpochMaker()
+                    EpochMaker(defaultPadding)
                 }
             }
         }
     }
 }
 
+val absolutePath = File("").absolutePath
+
 @Composable
-fun EpochMaker() {
+fun EpochMaker(defaultPadding: Dp) {
 
     var day: String by remember { mutableStateOf("") }
     var month: String by remember { mutableStateOf("") }
@@ -113,7 +124,7 @@ fun EpochMaker() {
         )
     }
 
-    AnimatedVisibility (epochs != null) {
+    AnimatedVisibility(epochs != null) {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
             modifier = Modifier.fillMaxWidth().padding(defaultPadding),

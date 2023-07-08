@@ -7,16 +7,18 @@ import javax.swing.SwingUtilities
 
 class MainViewModel {
 
-    private val _workDir: MutableState<String> = mutableStateOf(defaultWorkDir)
+    private var watchingSession: WatchingSession? = null
+
+    var configs = Configs()
+
+    private val _workDir: MutableState<String> = mutableStateOf(configs.settings.defaultWorkDir)
     val workDir: State<String> = _workDir
 
-    private val _htmlFileName: MutableState<String> = mutableStateOf(defaultFile)
+    private val _htmlFileName: MutableState<String> = mutableStateOf(configs.settings.defaultFile)
     val htmlFileName: State<String> = _htmlFileName
 
     private val _status = mutableStateOf("")
     val status: State<String> = _status
-
-    private var watchingSession: WatchingSession? = null
 
     init {
         refresh()
@@ -40,6 +42,11 @@ class MainViewModel {
         }
     }
 
+    fun refreshAll() {
+        configs = Configs()
+        refresh()
+    }
+
     fun refresh() {
         assert(SwingUtilities.isEventDispatchThread())
 
@@ -53,6 +60,7 @@ class MainViewModel {
             watchingSession = WatchingSession(
                 currentWorkDir,
                 currentHtmlFile,
+                configs,
                 onError = { error ->
                     _status.value = error
                 },

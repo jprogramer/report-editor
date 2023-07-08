@@ -1,17 +1,22 @@
-import com.google.common.collect.ImmutableCollection
-import com.google.common.collect.ImmutableList
-import com.google.common.io.Files
 import com.itextpdf.styledxmlparser.resolver.resource.IResourceRetriever
 import dz.nexatech.reporter.client.common.withIO
 import dz.nexatech.reporter.client.core.PdfConverter
 import kotlinx.coroutines.runBlocking
 import java.io.*
 import java.net.URL
-import java.util.concurrent.ConcurrentHashMap
 
-class PdfGenerator(val workDir: String, val inputFile: File) {
+class PdfGenerator(
+    configs: Configs,
+    val workDir: String,
+    val inputFile: File,
+) {
+
+    companion object {
+        private val log = logger()
+    }
 
     private val templateParser: TemplateParser = TemplateParser(
+        configs = configs,
         templateContentLoader = {
             if (it == inputFile.name) BufferedInputStream(FileInputStream(inputFile)) else null
         },
@@ -41,11 +46,10 @@ class PdfGenerator(val workDir: String, val inputFile: File) {
                 return null
             }
 
-
             override fun getByteArrayByUrl(url: URL?): ByteArray? =
                 getInputStreamByUrl(url)?.readAllBytes()
         },
-        fontsLoader = { loadFont(workDir, mainFontName) }
+        fontsLoader = { configs.loadFont(workDir) }
     )
 
     fun generatePDF(output: File) {
@@ -59,73 +63,6 @@ class PdfGenerator(val workDir: String, val inputFile: File) {
                     log.error("error while generating: ${output.absolutePath}", e)
                 }
             }
-        }
-    }
-
-    companion object {
-
-        private val log = logger()
-
-        private val loader = PdfGenerator::class.java.classLoader
-
-        private val fontsCache = ConcurrentHashMap<String, ImmutableCollection<ByteArray>>()
-
-        fun loadFont(workDir: String, fontName: String): ImmutableCollection<ByteArray> =
-            fontsCache.computeIfAbsent(fontName) {
-                val fontDirName = fontName.replace(" ", "")
-                val builder = ImmutableList.Builder<ByteArray>()
-                loadFont(workDir, "fonts/$fontDirName/Bold.ttf", builder)
-                loadFont(workDir, "fonts/$fontDirName/Regular.ttf", builder)
-                builder.build()
-            }
-
-        private fun loadFont(
-            workDir: String,
-            fontPath: String,
-            builder: ImmutableList.Builder<ByteArray>,
-        ) {
-            val fontFileBytes = loadFontFileBytes(File(workDir, fontPath))
-            if (fontFileBytes != null) {
-                builder.add(fontFileBytes)
-            } else {
-                val fontAssetBytes = loadFontAssetBytes(fontPath)
-                if (fontAssetBytes != null) {
-                    builder.add(fontAssetBytes)
-                }
-            }
-        }
-
-        private fun loadFontFileBytes(fontFile: File): ByteArray? {
-            if (fontFile.exists()) {
-                try {
-                    return Files.toByteArray(fontFile)
-                } catch (e: Exception) {
-                    log.error("error while loading font file: ${fontFile.absolutePath}", e)
-                }
-            } else {
-                log.warn("font file not found: ${fontFile.absolutePath}")
-            }
-
-            return null
-        }
-
-        private fun loadFontAssetBytes(
-            fontPath: String,
-        ): ByteArray? {
-            try {
-                val inputStream = loader.getResourceAsStream(fontPath)
-                if (inputStream != null) {
-                    val bytes = inputStream.readAllBytes()
-                    log.debug("font asset loaded: $fontPath")
-                    return bytes;
-                } else {
-                    log.warn("font asset not found: $fontPath")
-                }
-            } catch (e: Exception) {
-                log.error("error while loading font asset: $fontPath", e)
-            }
-
-            return null
         }
     }
 }
