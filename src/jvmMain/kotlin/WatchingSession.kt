@@ -96,6 +96,7 @@ class WatchingSession(
 
     fun close() {
         if (!closed.getAndSet(true)) {
+            onError("")
             watcher.shutdownNow()
             scheduler.shutdownNow()
         }

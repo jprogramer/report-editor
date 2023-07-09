@@ -1,11 +1,12 @@
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.awt.Component
 import java.util.*
-import javax.swing.SwingUtilities
 
-class MainViewModel {
+class MainViewModel(val scope: CoroutineScope) {
 
     private var watchingSession: WatchingSession? = null
 
@@ -21,7 +22,9 @@ class MainViewModel {
     val status: State<String> = _status
 
     init {
-        refresh()
+        scope.launch {
+            refresh()
+        }
     }
 
     fun openWorkDirChooser(parent: Component) {
@@ -30,26 +33,30 @@ class MainViewModel {
 
     fun updateWorkDir(newWorkDir: String?) {
         if (newWorkDir != null) {
-            _workDir.value = newWorkDir
-            refresh()
+            scope.launch {
+                _workDir.value = newWorkDir
+                refresh()
+            }
         }
     }
 
     fun updateHtmlFileName(newFileName: String?) {
         if (newFileName != null) {
-            _htmlFileName.value = newFileName
-            refresh()
+            scope.launch {
+                _htmlFileName.value = newFileName
+                refresh()
+            }
         }
     }
 
     fun refreshAll() {
-        configs = Configs()
-        refresh()
+        scope.launch {
+            configs = Configs()
+            refresh()
+        }
     }
 
     fun refresh() {
-        assert(SwingUtilities.isEventDispatchThread())
-
         watchingSession?.close()
         watchingSession = null
 
@@ -62,10 +69,10 @@ class MainViewModel {
                 currentHtmlFile,
                 configs,
                 onError = { error ->
-                    _status.value = error
+                    scope.launch { _status.value = error }
                 },
                 onUpdate = {
-                    _status.value = "last update: " + Date()
+                    scope.launch { _status.value = "last update: " + Date() }
                 }
             )
         } else {

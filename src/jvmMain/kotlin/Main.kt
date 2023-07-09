@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import dz.nexatech.reporter.client.common.AbstractLocalizer
@@ -16,7 +17,8 @@ import java.util.*
 
 fun main() {
     application {
-        val viewModel = remember { MainViewModel() }
+        val scope = rememberCoroutineScope()
+        val viewModel = remember(scope) { MainViewModel(scope) }
         val defaultPadding = Configs.settings.paddingUnit
         Window(
             onCloseRequest = ::exitApplication,
@@ -104,27 +106,27 @@ fun EpochMaker(defaultPadding: Dp) {
             value = day,
             onValueChange = { day = it },
             label = { Text("Day") },
-            modifier = Modifier.padding(defaultPadding)
+            modifier = Modifier.requiredWidth(100.dp).padding(defaultPadding)
         )
 
         OutlinedTextField(
             value = month,
             onValueChange = { month = it },
             label = { Text("Month") },
-            modifier = Modifier.padding(defaultPadding)
+            modifier = Modifier.requiredWidth(150.dp).padding(defaultPadding)
         )
 
         OutlinedTextField(
             value = year,
             onValueChange = { year = it },
             label = { Text("Year") },
-            modifier = Modifier.padding(defaultPadding)
+            modifier = Modifier.requiredWidth(100.dp).padding(defaultPadding)
         )
     }
 
     AnimatedVisibility(epochs != null) {
         Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth().padding(defaultPadding),
         ) {
             val min = epochs?.min ?: "N/A"

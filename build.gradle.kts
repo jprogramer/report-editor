@@ -64,6 +64,7 @@ dependencies {
     add("implementation", "org.jetbrains.kotlin:kotlin-stdlib-jdk8:" + project.property("kotlin.version"))
     add("implementation", "com.google.guava:guava:31.1-jre")
     add("implementation", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+//    add("implementation", "org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.6.4")
 
     add("implementation", files("libs/typography-3.0.2.jar"))
     add("implementation", "io.pebbletemplates:pebble:3.2.0")
