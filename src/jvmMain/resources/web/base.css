@@ -1,3 +1,7 @@
 th {
 	text-align: inherit;
 }
+
+p {
+	margin: 0;
+}
