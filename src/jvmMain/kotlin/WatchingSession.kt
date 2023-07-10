@@ -27,7 +27,7 @@ class WatchingSession(
 
     private val workDirPath: Path = Paths.get(workDir)
     private val inputFile = File(workDir, htmlFileName)
-    val pdfGenerator = PdfGenerator(configs, workDir, inputFile)
+    private val pdfGenerator = PdfGenerator(configs, workDir, inputFile)
 
     private val watcher: ExecutorService = Executors.newSingleThreadExecutor().also {
         it.submit {
