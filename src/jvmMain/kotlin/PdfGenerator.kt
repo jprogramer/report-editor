@@ -1,3 +1,4 @@
+import com.google.common.io.Files
 import com.itextpdf.styledxmlparser.resolver.resource.IResourceRetriever
 import dz.nexatech.reporter.client.core.PdfConverter
 import kotlinx.coroutines.runBlocking
@@ -59,14 +60,25 @@ class PdfGenerator(
         fontsLoader = { configs.loadFont(workDir) }
     )
 
+    fun generateHtml(destinationFile: File) {
+        compileHtml(destinationFile) { html ->
+            Files.write(html.toByteArray(), destinationFile)
+        }
+    }
+
     fun generatePDF(destinationFile: File) {
+        compileHtml(destinationFile) { html ->
+            val outputStream = BufferedOutputStream(FileOutputStream(destinationFile))
+            runBlocking {
+                pdfConverter.generatePDF(outputStream, html)
+            }
+        }
+    }
+
+    private fun compileHtml(destinationFile: File, writer: (String) -> Unit) {
         executorService.submit {
             try {
-                val html = templateParser().evaluateState(inputFile.name)
-                val outputStream = BufferedOutputStream(FileOutputStream(destinationFile))
-                runBlocking {
-                    pdfConverter.generatePDF(outputStream, html)
-                }
+                writer.invoke(templateParser().evaluateState(inputFile.name))
                 openFile(destinationFile)
             } catch (e: Exception) {
                 log.error("error while generating: ${destinationFile.absolutePath}", e)

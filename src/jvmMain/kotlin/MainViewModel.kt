@@ -27,6 +27,18 @@ class MainViewModel(val scope: CoroutineScope) {
         }
     }
 
+    fun viewHtml() {
+        scope.launch {
+            watchingSession?.viewHtml()
+        }
+    }
+
+    fun editHtml() {
+        scope.launch {
+            watchingSession?.editHtml()
+        }
+    }
+
     fun openWorkDirChooser(parent: Component) {
         updateWorkDir(chooseDirectory(parent))
     }
@@ -65,9 +77,9 @@ class MainViewModel(val scope: CoroutineScope) {
         if (currentWorkDir.isNotEmpty() and currentHtmlFile.isNotEmpty()) {
             _status.value = "loading..."
             watchingSession = WatchingSession(
+                configs,
                 currentWorkDir,
                 currentHtmlFile,
-                configs,
                 onError = { error ->
                     scope.launch { _status.value = error }
                 },

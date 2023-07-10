@@ -1,7 +1,11 @@
 // Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+@file:OptIn(ExperimentalLayoutApi::class)
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,10 +43,18 @@ fun main() {
                         onValueChange = {
                             viewModel.updateWorkDir(it)
                         },
+                        trailingIcon = {
+                            IconButton(
+                                onClick = { viewModel.openWorkDirChooser(window) },
+                                modifier = Modifier
+                            ) {
+                                Icon(Icons.Filled.Edit, "Browse")
+                            }
+                        },
                         label = { Text("Work Directory") },
                         modifier = Modifier.fillMaxWidth().padding(defaultPadding)
                     )
-                    Row(
+                    FlowRow(
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -56,17 +68,24 @@ fun main() {
                         )
 
                         Button(
-                            onClick = { viewModel.openWorkDirChooser(window) },
-                            modifier = Modifier.padding(defaultPadding)
-                        ) {
-                            Text("Browse")
-                        }
-
-                        Button(
                             onClick = { viewModel.refreshAll() },
                             modifier = Modifier.padding(defaultPadding)
                         ) {
-                            Text("Refresh")
+                            Text("Refresh PDF")
+                        }
+
+                        Button(
+                            onClick = { viewModel.viewHtml() },
+                            modifier = Modifier.padding(defaultPadding)
+                        ) {
+                            Text("View HTML")
+                        }
+
+                        Button(
+                            onClick = { viewModel.editHtml() },
+                            modifier = Modifier.padding(defaultPadding)
+                        ) {
+                            Text("Edit HTML")
                         }
                     }
 
@@ -97,7 +116,7 @@ fun EpochMaker(defaultPadding: Dp) {
         text = "Date to Epoch Converter:",
     )
 
-    Row(
+    FlowRow(
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier.padding(defaultPadding),
     ) {

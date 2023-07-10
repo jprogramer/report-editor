@@ -1,3 +1,4 @@
+import dz.nexatech.reporter.client.core.ReporterExtension
 import dz.nexatech.reporter.client.core.TemplateLoader
 import io.pebbletemplates.pebble.PebbleEngine
 import io.pebbletemplates.pebble.template.PebbleTemplate
@@ -32,12 +33,13 @@ class TemplateParser(
         "Exception: ${e.message}"
     }
 
-    fun compileTemplateBlocking(templateName: String): PebbleTemplate {
+    private fun compileTemplateBlocking(templateName: String): PebbleTemplate {
         val currentEngine = pebbleEngine
         if (currentEngine == null) {
             val newEngine = PebbleEngine.Builder()
                 .newLineTrimming(false)
                 .autoEscaping(true)
+                .extension(ReporterExtension)
                 .loader(templateLoader)
                 .build()
             pebbleEngine = newEngine

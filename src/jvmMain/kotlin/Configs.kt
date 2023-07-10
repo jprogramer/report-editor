@@ -119,7 +119,7 @@ class Configs {
                 log.error("error while loading font file: ${fontFile.absolutePath}", e)
             }
         } else {
-            log.warn("font file not found: ${fontFile.absolutePath}")
+            log.info("font file not found: ${fontFile.absolutePath}")
         }
 
         return null

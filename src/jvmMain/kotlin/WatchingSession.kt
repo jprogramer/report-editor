@@ -10,9 +10,9 @@ import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 
 class WatchingSession(
-    workDir: String,
-    htmlFileName: String,
     configs: Configs,
+    workDir: String,
+    private val htmlFileName: String,
     private val onError: (String) -> Unit = {},
     private val onUpdate: () -> Unit = {},
 ) {
@@ -79,8 +79,7 @@ class WatchingSession(
     }
 
     private val updater = Runnable {
-        val output = File.createTempFile("$htmlFileName-preview", ".pdf")
-        pdfGenerator.generatePDF(output)
+        pdfGenerator.generatePDF(File.createTempFile("$htmlFileName-preview", ".pdf"))
         SwingUtilities.invokeLater(onUpdate)
     }
 
@@ -92,6 +91,14 @@ class WatchingSession(
         } else {
             throw InterruptedException()
         }
+    }
+
+    fun viewHtml() {
+        pdfGenerator.generateHtml(File.createTempFile("$htmlFileName-preview", ".html"))
+    }
+
+    fun editHtml() {
+        pdfGenerator.generateHtml(File.createTempFile("$htmlFileName-preview", ".txt"))
     }
 
     fun close() {
