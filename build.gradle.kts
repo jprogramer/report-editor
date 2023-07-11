@@ -5,7 +5,6 @@ plugins {
     id("org.jetbrains.compose")
 }
 
-
 val buildVersion = "0.9.5"
 val buildID = buildVersion + '-' + System.currentTimeMillis()
 version = buildVersion
@@ -49,7 +48,6 @@ compose.desktop {
                 menu = true
                 iconFile.set(project.layout.projectDirectory.file("buildResources/ic_launcher.ico"))
             }
-            appResourcesRootDir.set(project.layout.projectDirectory.dir("src/jvmMain/resources"))
         }
     }
 }

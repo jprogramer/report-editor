@@ -26,7 +26,6 @@ class Configs {
     companion object {
 
         const val RES_PREFIX = "common/"
-        const val RES_DIR_PATH = "/$RES_PREFIX"
         const val FONT_RES_PREFIX = "${RES_PREFIX}fonts/"
 
         private const val configsDir = "configs"

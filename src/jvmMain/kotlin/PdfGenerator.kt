@@ -1,9 +1,8 @@
+import Configs.Companion.RES_PREFIX
 import com.google.common.io.Files
-import com.itextpdf.styledxmlparser.resolver.resource.IResourceRetriever
 import dz.nexatech.reporter.client.core.PdfConverter
 import kotlinx.coroutines.runBlocking
 import java.io.*
-import java.net.URL
 import java.util.concurrent.SynchronousQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
@@ -22,6 +21,8 @@ class PdfGenerator(
             60L, TimeUnit.SECONDS,
             SynchronousQueue()
         )
+
+        private val HTML_RES_PATH = Regex("['\"][\\\\/]$RES_PREFIX[^'\"]+['\"]")
     }
 
     private fun templateParser(): TemplateParser = TemplateParser(
@@ -32,38 +33,35 @@ class PdfGenerator(
         templateExistenceChecker = { it == inputFile.name },
     )
 
+    private val resourceLoader = ResourcesLoader(workDir)
     private val pdfConverter = PdfConverter(
-        resourceLoader = object : IResourceRetriever {
-
-            private val loader = this.javaClass.classLoader
-
-            override fun getInputStreamByUrl(url: URL?): InputStream? {
-                if (url != null) {
-                    val resPath = url.path
-                    val file = File(workDir, resPath)
-                    if (file.exists()) {
-                        return BufferedInputStream(FileInputStream(file))
-                    }
-
-                    val resourceInputSteam = loader.getResourceAsStream(resPath.removePrefix("/"))
-                    if (resourceInputSteam != null) {
-                        return BufferedInputStream(resourceInputSteam)
-                    }
-
-                    log.warn("resource not found: ${file.absolutePath}")
-                }
-                return null
-            }
-
-            override fun getByteArrayByUrl(url: URL?): ByteArray? =
-                getInputStreamByUrl(url)?.readAllBytes()
-        },
+        resourceLoader = resourceLoader,
         fontsLoader = { configs.loadFont(workDir) }
     )
 
     fun generateHtml(destinationFile: File) {
         compileHtml(destinationFile) { html ->
-            Files.write(html.toByteArray(), destinationFile)
+            val updatedHtml = html.replace(HTML_RES_PATH) {
+                val value = it.value
+                if (value.length > 5) {
+                    val resPath = value.substring(1 , value.length - 1)
+                    val resourceStream = resourceLoader.openResource(resPath)
+
+                    val updatedPath = if (resourceStream != null) {
+                        val copiedRes = File.createTempFile("res", File(resPath).name)
+                        Files.write(resourceStream.readAllBytes(), copiedRes)
+                        copiedRes.absolutePath
+                    } else {
+                        resPath + "_not_found"
+                    }
+
+                    val quotes = value[0]
+                    quotes + updatedPath + quotes
+                } else {
+                    value
+                }
+            }
+            Files.write(updatedHtml.toByteArray(), destinationFile)
         }
     }
 

@@ -1,4 +1,4 @@
-import Configs.Companion.RES_DIR_PATH
+import Configs.Companion.RES_PREFIX
 import java.io.File
 import java.nio.file.FileSystems
 import java.nio.file.StandardWatchEventKinds
@@ -23,7 +23,7 @@ class WatchingSession(
     private var nextUpdate: ScheduledFuture<*>? = null
 
     private val workDir = File(workDirPath)
-    private val resDir = File(workDirPath, RES_DIR_PATH)
+    private val resDir = File(workDirPath, RES_PREFIX)
     private val inputFile = File(workDirPath, htmlFileName)
     private val pdfGenerator = PdfGenerator(configs, workDirPath, inputFile, onError)
 
