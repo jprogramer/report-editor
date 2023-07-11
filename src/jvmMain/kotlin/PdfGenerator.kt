@@ -12,6 +12,7 @@ class PdfGenerator(
     val configs: Configs,
     val workDir: String,
     val inputFile: File,
+    val onError: (String) -> Unit,
 ) {
 
     companion object {
@@ -82,6 +83,7 @@ class PdfGenerator(
                 openFile(destinationFile)
             } catch (e: Exception) {
                 log.error("error while generating: ${destinationFile.absolutePath}", e)
+                onError("Error: " + e.message)
             }
         }
     }

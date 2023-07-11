@@ -24,6 +24,11 @@ import java.util.concurrent.ConcurrentHashMap
 class Configs {
 
     companion object {
+
+        const val RES_PREFIX = "common/"
+        const val RES_DIR_PATH = "/$RES_PREFIX"
+        const val FONT_RES_PREFIX = "${RES_PREFIX}fonts/"
+
         private const val configsDir = "configs"
 
         private val gson = Gson()
@@ -90,8 +95,8 @@ class Configs {
         fontsCache.computeIfAbsent(fontName) {
             val fontDirName = fontName.replace(" ", "")
             val builder = ImmutableList.Builder<ByteArray>()
-            loadFont(workDir, "fonts/$fontDirName/Bold.ttf", builder)
-            loadFont(workDir, "fonts/$fontDirName/Regular.ttf", builder)
+            loadFont(workDir, "$FONT_RES_PREFIX$fontDirName/Bold.ttf", builder)
+            loadFont(workDir, "$FONT_RES_PREFIX$fontDirName/Regular.ttf", builder)
             builder.build()
         }
 

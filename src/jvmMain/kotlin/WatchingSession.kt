@@ -1,17 +1,14 @@
+import Configs.Companion.RES_DIR_PATH
 import java.io.File
 import java.nio.file.FileSystems
-import java.nio.file.Path
-import java.nio.file.Paths
 import java.nio.file.StandardWatchEventKinds
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.SwingUtilities
-import kotlin.io.path.exists
-import kotlin.io.path.isDirectory
 
 class WatchingSession(
     configs: Configs,
-    workDir: String,
+    workDirPath: String,
     private val htmlFileName: String,
     private val onError: (String) -> Unit = {},
     private val onUpdate: () -> Unit = {},
@@ -25,24 +22,41 @@ class WatchingSession(
     private val scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
     private var nextUpdate: ScheduledFuture<*>? = null
 
-    private val workDirPath: Path = Paths.get(workDir)
-    private val inputFile = File(workDir, htmlFileName)
-    private val pdfGenerator = PdfGenerator(configs, workDir, inputFile)
+    private val workDir = File(workDirPath)
+    private val resDir = File(workDirPath, RES_DIR_PATH)
+    private val inputFile = File(workDirPath, htmlFileName)
+    private val pdfGenerator = PdfGenerator(configs, workDirPath, inputFile, onError)
 
     private val watcher: ExecutorService = Executors.newSingleThreadExecutor().also {
         it.submit {
             try {
-                if (workDirPath.exists() and workDirPath.isDirectory()) {
+                if (workDir.exists() and workDir.isDirectory) {
                     if (inputFile.exists()) {
                         update()
 
                         FileSystems.getDefault().newWatchService().use { watchService ->
-                            workDirPath.register(
+                            log.info("watching: $workDir")
+                            workDir.toPath().register(
                                 watchService,
                                 StandardWatchEventKinds.ENTRY_CREATE,
                                 StandardWatchEventKinds.ENTRY_DELETE,
                                 StandardWatchEventKinds.ENTRY_MODIFY
                             )
+
+                            if (resDir.exists() and resDir.isDirectory) {
+                                val files = resDir.listFiles()
+                                if (files != null) {
+                                    for (res in files) {
+                                        log.info("watching: $res")
+                                        res.toPath().register(
+                                            watchService,
+                                            StandardWatchEventKinds.ENTRY_CREATE,
+                                            StandardWatchEventKinds.ENTRY_DELETE,
+                                            StandardWatchEventKinds.ENTRY_MODIFY
+                                        )
+                                    }
+                                }
+                            }
 
                             while (true) {
                                 val key = watchService.take()
