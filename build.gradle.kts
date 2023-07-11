@@ -6,7 +6,7 @@ plugins {
 }
 
 
-val buildVersion = "0.9.4"
+val buildVersion = "0.9.5"
 val buildID = buildVersion + '-' + System.currentTimeMillis()
 version = buildVersion
 group = "dz.nexatech.reporter"
@@ -47,8 +47,9 @@ compose.desktop {
                 dirChooser = true
                 shortcut = true
                 menu = true
-                iconFile.set(project.layout.projectDirectory.file("icons/ic_launcher.ico"))
+                iconFile.set(project.layout.projectDirectory.file("buildResources/ic_launcher.ico"))
             }
+            appResourcesRootDir.set(project.layout.projectDirectory.dir("src/jvmMain/resources"))
         }
     }
 }

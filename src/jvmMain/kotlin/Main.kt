@@ -27,7 +27,7 @@ fun main() {
         Window(
             onCloseRequest = ::exitApplication,
             title = "Report Editor",
-            icon = BitmapPainter(useResource("desktop/app_bar_icon.ico", ::loadImageBitmap)),
+            icon = BitmapPainter(useResource("runtime/app_bar_icon.ico", ::loadImageBitmap)),
         ) {
             MaterialTheme {
                 Column(
