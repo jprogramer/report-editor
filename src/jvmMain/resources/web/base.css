@@ -5,3 +5,8 @@ th {
 p {
 	margin: 0;
 }
+
+.container, .columns, .column {
+	padding: 0;
+	margin: 0;
+}

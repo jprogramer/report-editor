@@ -6,7 +6,7 @@ plugins {
 }
 
 
-val buildVersion = "0.9.3"
+val buildVersion = "0.9.4"
 val buildID = buildVersion + '-' + System.currentTimeMillis()
 version = buildVersion
 group = "dz.nexatech.reporter"
